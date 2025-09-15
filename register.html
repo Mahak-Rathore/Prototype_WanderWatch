@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tourist Registration</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="container mt-5">
+  <h2>Tourist Registration & Digital ID</h2>
+  <form id="regForm">
+    <div class="mb-3">
+      <label>Full Name</label>
+      <input id="name" type="text" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label>Passport / Aadhaar Number</label>
+      <input id="idNumber" type="text" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label>Upload Verification Document</label>
+      <input id="doc" type="file" class="form-control">
+    </div>
+    <div class="mb-3">
+      <label>Trip Itinerary</label>
+      <textarea id="itinerary" class="form-control"></textarea>
+    </div>
+    <div class="form-check">
+      <input id="consent" type="checkbox" class="form-check-input">
+      <label class="form-check-label">I consent to data use & optional tracking</label>
+    </div>
+    <button type="submit" class="btn btn-primary mt-3">Generate Digital ID</button>
+  </form>
+</div>
+
+<script>
+// Simple front-end flow: store mock ID in sessionStorage and redirect
+document.getElementById('regForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const name = document.getElementById('name').value || 'Tourist';
+    const idNumber = document.getElementById('idNumber').value || 'T12345';
+    const itinerary = document.getElementById('itinerary').value || 'No itinerary provided.';
+    const consent = document.getElementById('consent').checked;
+
+    const tourist = { name, idNumber, itinerary, consent };
+    sessionStorage.setItem('tourist', JSON.stringify(tourist));
+
+    // Redirect to tourist dashboard
+    window.location.href = 'tourist-dashboard.html';
+});
+</script>
+
+</body>
+</html>

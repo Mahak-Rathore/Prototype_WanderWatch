@@ -1,0 +1,58 @@
+/* Basic shared styles for the Smart Tourist Safety prototype */
+
+/* Global body styles */
+body {
+  background: #f7f9fc;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5 {
+  color: #1d3557;
+  font-weight: 600;
+}
+
+/* Navbar tweaks (if using Bootstrap navbars) */
+.navbar-custom {
+  background-color: #1d3557;
+}
+.navbar-custom .nav-link,
+.navbar-custom .navbar-brand {
+  color: #fff;
+}
+.navbar-custom .nav-link:hover {
+  color: #a8dadc;
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: #457b9d;
+  border: none;
+}
+.btn-primary:hover {
+  background-color: #1d3557;
+}
+
+/* Card / container spacing */
+.container {
+  max-width: 800px;
+}
+
+/* Map container for geofence.html */
+#map {
+  height: 500px;
+  width: 100%;
+  border: 2px solid #1d3557;
+  border-radius: 6px;
+  margin-top: 20px;
+}
+
+/* Alert messages */
+.alert-box {
+  font-size: 18px;
+  font-weight: bold;
+  color: #e63946;
+  margin-top: 15px;
+  text-align: center;
+}

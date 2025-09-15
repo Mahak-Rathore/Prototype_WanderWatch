@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Geo-Fence Demo</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+  body { font-family: Arial, sans-serif; }
+  #container {
+    display: flex;
+    gap: 10px;
+  }
+  /* Left side map */
+  #map {
+    height: 500px;
+    flex: 2;
+  }
+  /* Right side dashboard */
+  #dashboard {
+    flex: 1;
+    padding: 10px;
+    border: 2px solid #ccc;
+    background: #f9f9f9;
+    max-height: 500px;
+    overflow-y: auto;
+  }
+  #dashboard h3 { margin-top: 0; }
+  #alert {
+    margin-top: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    color: red;
+  }
+  #score {
+    margin-top: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    color: green;
+  }
+  #panic {
+    margin-top: 10px;
+    padding: 8px 16px;
+    font-size: 16px;
+    background: red;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  #panic:hover { background: darkred; }
+  #history {
+    list-style-type: disc;
+    padding-left: 20px;
+  }
+</style>
+</head>
+<body>
+<h2>AI/Geo-Fence Simulation</h2>
+
+<!-- Map + Dashboard side-by-side -->
+<div id="container">
+  <!-- Map -->
+  <div id="map"></div>
+
+  <!-- Dashboard -->
+  <div id="dashboard">
+    <h3>Authorities Dashboard</h3>
+    <p><strong>Tourist ID:</strong> T12345</p>
+    <p><strong>Coordinates:</strong> <span id="coords">--</span></p>
+    <p id="score">Safety Score: 100</p>
+    <button id="panic">🚨 Panic Button</button>
+    <h4>Alert History</h4>
+    <ul id="history"></ul>
+    <div id="alert"></div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
+<script>
+// ---- Safety Score Helper ----
+function updateScore(distance){
+  // Score decreases as distance outside fence increases
+  let score = 100 - Math.min(distance * 10, 100);
+  document.getElementById('score').innerText =
+      "Safety Score: " + Math.max(score, 0).toFixed(0);
+}
+
+// ---- Initial Map ----
+const map = L.map('map').setView([28.6139, 77.2090], 13); // Delhi center
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+ { attribution: '&copy; OpenStreetMap contributors'}).addTo(map);
+
+// ---- Define Polygon (Geo-fence) ----
+const fenceCoords = [
+  [28.6200, 77.2000],
+  [28.6200, 77.2200],
+  [28.6050, 77.2200],
+  [28.6050, 77.2000]
+];
+const fence = L.polygon(fenceCoords, {color: 'blue'}).addTo(map);
+map.fitBounds(fence.getBounds());
+
+// ---- Draggable Marker ----
+let marker = L.marker([28.6139, 77.2090], {draggable:true}).addTo(map);
+marker.on('drag', checkFence);
+marker.on('dragend', checkFence);
+
+// ---- Update Dashboard ----
+function updateDashboard() {
+  const pos = marker.getLatLng();
+  document.getElementById('coords').innerText =
+    `${pos.lat.toFixed(4)}, ${pos.lng.toFixed(4)}`;
+}
+
+function logEvent(text){
+  const item = document.createElement('li');
+  item.textContent = `${text} at ${new Date().toLocaleTimeString()}`;
+  document.getElementById('history').prepend(item);
+}
+
+// ---- Geo-fence Check ----
+function checkFence() {
+  const pt = marker.getLatLng();
+  const point = turf.point([pt.lng, pt.lat]);
+  const poly = turf.polygon([[...fenceCoords.map(c => [c[1], c[0]]),
+                               [fenceCoords[0][1], fenceCoords[0][0]]]]);
+  const inside = turf.booleanPointInPolygon(point, poly);
+
+  updateDashboard();
+
+  if (inside) {
+    document.getElementById('alert').innerText = '';
+    updateScore(0);  // full safety inside
+  } else {
+    // Distance to nearest fence edge (km)
+    const distance = turf.pointToLineDistance(
+        point,
+        turf.lineString(fenceCoords.map(c => [c[1], c[0]])),
+        {units: 'kilometers'}
+    );
+    document.getElementById('alert').innerText =
+        '🚨 Geo-Fence Alert! Marker OUTSIDE safe zone!';
+    updateScore(distance);
+    logEvent('Geo-Fence Alert');
+  }
+}
+
+// ---- Panic Button ----
+document.getElementById('panic').onclick = () => {
+  const loc = marker.getLatLng();
+  alert(`🚨 SOS Sent!\nLocation: ${loc.lat.toFixed(4)}, ${loc.lng.toFixed(4)}`);
+  logEvent('Panic Button Pressed');
+};
+</script>
+</body>
+</html>
