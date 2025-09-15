@@ -1,5 +1,5 @@
 # Prototype_WanderWatch
-'''
+```
 prototype/
 │
 ├─ index.html                 
@@ -19,5 +19,5 @@ prototype/
     ├─ css/
     │   └─ style.css          
     └─ js/
-        └─ main.js 
-'''
+        └─ main.js
+```
